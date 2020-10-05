@@ -66,7 +66,10 @@ Shader "Custom/Outline Fill" {
         float3 viewPosition = UnityObjectToViewPos(input.vertex);
         float3 viewNormal = normalize(mul((float3x3)UNITY_MATRIX_IT_MV, normal));
 
-        output.position = UnityViewToClipPos(viewPosition + viewNormal * -viewPosition.z * _OutlineWidth / 1000.0);
+        //UNITY_MATRIX_P[3].w == 0.0  - Perspective camera projection matrix
+        //UNITY_MATRIX_P[3].w == 1.0  - Orthographic camera projection matrix
+        //UNITY_MATRIX_P[1].y - Orthographic camera half height
+        output.position = UnityViewToClipPos(viewPosition + viewNormal * (-viewPosition.z * (1 - UNITY_MATRIX_P[3].w) + abs(2 * UNITY_MATRIX_P[3].w * (1 / (UNITY_MATRIX_P[1].y)))) * _OutlineWidth / 1000.0);
         output.color = _OutlineColor;
 
         return output;
