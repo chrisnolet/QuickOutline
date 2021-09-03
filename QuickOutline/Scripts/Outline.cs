@@ -208,8 +208,9 @@ public class Outline : MonoBehaviour {
     // Group vertices by location
     var groups = mesh.vertices.Select((vertex, index) => new KeyValuePair<Vector3, int>(vertex, index)).GroupBy(pair => pair.Key);
 
+    Vector3[] normals = mesh.normals;
     // Copy normals to a new list
-    var smoothNormals = new List<Vector3>(mesh.normals);
+    var smoothNormals = new List<Vector3>(normals);
 
     // Average normals for grouped vertices
     foreach (var group in groups) {
@@ -223,7 +224,7 @@ public class Outline : MonoBehaviour {
       var smoothNormal = Vector3.zero;
 
       foreach (var pair in group) {
-        smoothNormal += mesh.normals[pair.Value];
+        smoothNormal += normals[pair.Value];
       }
 
       smoothNormal.Normalize();
