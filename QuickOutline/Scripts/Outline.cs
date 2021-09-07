@@ -124,22 +124,24 @@ namespace ModelOutline
 
         void FixMuti()
         {
-            foreach (var skinnedMeshRenderer in meshFilters)
+            foreach (var skinnedMeshRenderer in skinnedMeshRenderers)
             {
                 if (skinnedMeshRenderer.sharedMesh.subMeshCount > 1)
                 {
-                    skinnedMeshRenderer.sharedMesh.subMeshCount = skinnedMeshRenderer.sharedMesh.subMeshCount + 1;
-                    skinnedMeshRenderer.sharedMesh.SetTriangles(skinnedMeshRenderer.sharedMesh.triangles, skinnedMeshRenderer.sharedMesh.subMeshCount - 1);
+                    var t_mesh = Instantiate(skinnedMeshRenderer.sharedMesh);
+                    t_mesh.subMeshCount = t_mesh.subMeshCount + 1;
+                    t_mesh.SetTriangles(t_mesh.triangles, t_mesh.subMeshCount - 1);
+                    skinnedMeshRenderer.sharedMesh = t_mesh;
                 }
 
             }
 
-            foreach (var meshFilter in skinnedMeshRenderers)
+            foreach (var meshFilter in meshFilters)
             {
-                if (meshFilter.sharedMesh.subMeshCount > 1)
+                if (meshFilter.mesh.subMeshCount > 1)
                 {
-                    meshFilter.sharedMesh.subMeshCount = meshFilter.sharedMesh.subMeshCount + 1;
-                    meshFilter.sharedMesh.SetTriangles(meshFilter.sharedMesh.triangles, meshFilter.sharedMesh.subMeshCount - 1);
+                    meshFilter.mesh.subMeshCount = meshFilter.mesh.subMeshCount + 1;
+                    meshFilter.mesh.SetTriangles(meshFilter.mesh.triangles, meshFilter.mesh.subMeshCount - 1);
                 }
             }
         }
