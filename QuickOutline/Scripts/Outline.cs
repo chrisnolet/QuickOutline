@@ -193,13 +193,28 @@ public class Outline : MonoBehaviour {
 
       // Store smooth normals in UV3
       meshFilter.sharedMesh.SetUVs(3, smoothNormals);
+
+      // Combine submeshes
+      var renderer = meshFilter.GetComponent<Renderer>();
+
+      if (renderer != null) {
+        CombineSubmeshes(meshFilter.sharedMesh, renderer.sharedMaterials);
+      }
     }
 
     // Clear UV3 on skinned mesh renderers
     foreach (var skinnedMeshRenderer in GetComponentsInChildren<SkinnedMeshRenderer>()) {
-      if (registeredMeshes.Add(skinnedMeshRenderer.sharedMesh)) {
-        skinnedMeshRenderer.sharedMesh.uv4 = new Vector2[skinnedMeshRenderer.sharedMesh.vertexCount];
+
+      // Skip if UV3 has already been reset
+      if (!registeredMeshes.Add(skinnedMeshRenderer.sharedMesh)) {
+        continue;
       }
+
+      // Clear UV3
+      skinnedMeshRenderer.sharedMesh.uv4 = new Vector2[skinnedMeshRenderer.sharedMesh.vertexCount];
+
+      // Combine submeshes
+      CombineSubmeshes(skinnedMeshRenderer.sharedMesh, skinnedMeshRenderer.sharedMaterials);
     }
   }
 
@@ -223,7 +238,7 @@ public class Outline : MonoBehaviour {
       var smoothNormal = Vector3.zero;
 
       foreach (var pair in group) {
-        smoothNormal += mesh.normals[pair.Value];
+        smoothNormal += smoothNormals[pair.Value];
       }
 
       smoothNormal.Normalize();
@@ -235,6 +250,23 @@ public class Outline : MonoBehaviour {
     }
 
     return smoothNormals;
+  }
+
+  void CombineSubmeshes(Mesh mesh, Material[] materials) {
+
+    // Skip meshes with a single submesh
+    if (mesh.subMeshCount == 1) {
+      return;
+    }
+
+    // Skip if submesh count exceeds material count
+    if (mesh.subMeshCount > materials.Length) {
+      return;
+    }
+
+    // Append combined submesh
+    mesh.subMeshCount++;
+    mesh.SetTriangles(mesh.triangles, mesh.subMeshCount - 1);
   }
 
   void UpdateMaterialProperties() {
