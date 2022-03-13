@@ -68,6 +68,9 @@ public class Outline : MonoBehaviour {
   + "Precompute disabled: Per-vertex calculations are performed at runtime in Awake(). This may cause a pause for large meshes.")]
   private bool precomputeOutline;
 
+  [SerializeField, Tooltip("Check to exclude particle system renderers while considering which renderers to use for outlines.")]
+  private bool excludeParticleSystems = false;
+
   [SerializeField, HideInInspector]
   private List<Mesh> bakeKeys = new List<Mesh>();
 
@@ -84,6 +87,19 @@ public class Outline : MonoBehaviour {
 
     // Cache renderers
     renderers = GetComponentsInChildren<Renderer>();
+
+    // Exclude particle systems because it makes it look super wonky
+    if (excludeParticleSystems)
+    {
+        var tmp = new List<Renderer>();
+        foreach (var renderer in renderers)
+        {
+            if (renderer.GetType() != typeof(ParticleSystemRenderer))
+                tmp.Add(renderer);
+        }
+
+        renderers = tmp.ToArray();
+    }
 
     // Instantiate outline materials
     outlineMaskMaterial = Instantiate(Resources.Load<Material>(@"Materials/OutlineMask"));
