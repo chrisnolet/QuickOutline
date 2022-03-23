@@ -218,35 +218,62 @@ public class Outline : MonoBehaviour {
     }
   }
 
+  /// <summary>
+  /// Compute smoothed normals by averaging normals around points that have split normals.
+  /// </summary>
+  /// <returns>List of normals indexed by vertex index</returns>
   List<Vector3> SmoothNormals(Mesh mesh) {
 
-    // Group vertices by location
-    var groups = mesh.vertices.Select((vertex, index) => new KeyValuePair<Vector3, int>(vertex, index)).GroupBy(pair => pair.Key);
-
-    // Copy normals to a new list
-    var smoothNormals = new List<Vector3>(mesh.normals);
-
-    // Average normals for grouped vertices
-    foreach (var group in groups) {
-
-      // Skip single vertices
-      if (group.Count() == 1) {
-        continue;
+    // Find matched vertices and assign them an ID. To compute the matching we
+    // need a dictionary but we can lose it immediately.
+    var ids = new int[mesh.vertexCount];
+    int numIDs;
+    {
+      var idMap = new Dictionary<Vector3, int>();
+      var vertices = mesh.vertices;
+      for (int i = 0, n = mesh.vertexCount; i < n; ++i) {
+        // Performance note: the bulk of the time is here. With .NET 5 support
+        // we can do TryAdd first and TryGetValue only on duplicated vertices.
+        // Ideally we'd have a TryAdd that returns the actual value and do it all
+        // in just one lookup.
+        int id;
+        if (!idMap.TryGetValue(vertices[i], out id)) {
+          id = idMap.Count;
+          idMap.Add(vertices[i], id);
+        }
+        ids[i] = id;
       }
+      numIDs = idMap.Count;
+    }
 
-      // Calculate the average normal
-      var smoothNormal = Vector3.zero;
-
-      foreach (var pair in group) {
-        smoothNormal += smoothNormals[pair.Value];
+    // Compute the normals for the shared IDs by adding them up.
+    var normals = mesh.normals;
+    var averagedNormals = new Vector3[numIDs];
+    var counts = new int[numIDs];
+    for (int i = 0, n = mesh.vertexCount; i < n; ++i) {
+      var id = ids[i];
+      int count = counts[id];
+      if (count == 0) {
+        counts[id] = 1;
+        averagedNormals[id] = normals[i];
+      } else {
+        counts[id] = count + 1;
+        averagedNormals[id] += normals[i];
       }
+    }
 
-      smoothNormal.Normalize();
-
-      // Assign smooth normal to each vertex
-      foreach (var pair in group) {
-        smoothNormals[pair.Value] = smoothNormal;
+    // Convert from sums to averages.
+    for (int id = 0, n = averagedNormals.Length; id < n; ++id) {
+      var count = counts[id];
+      if (count != 1) {
+        averagedNormals[id] /= (float)count;
       }
+    }
+
+    // Now create a new list with the indexing of the original vertices.
+    var smoothNormals = new List<Vector3>(mesh.vertexCount);
+    for (int i = 0, n = mesh.vertexCount; i < n; ++i) {
+      smoothNormals.Add(averagedNormals[ids[i]]);
     }
 
     return smoothNormals;
