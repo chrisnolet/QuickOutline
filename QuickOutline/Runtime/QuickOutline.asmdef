@@ -1,7 +1,6 @@
 {
-    "name": "Outline",
+    "name": "QuickOutline",
     "references": [
-        ""
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
