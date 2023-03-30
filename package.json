@@ -8,9 +8,7 @@
   "documentationUrl": "https://assetstore.unity.com/packages/tools/particles-effects/quick-outline-115488",
   "changelogUrl": "https://github.com/chrisnolet/QuickOutline",
   "licensesUrl": "https://github.com/chrisnolet/QuickOutline/blob/master/License.txt",
-  "dependencies": {
-    "com.chrisnolet.quickoutline": "https://github.com/SGoerzen/QuickOutline.git"
-  },
+  "dependencies": {},
   "keywords": [
     "Outline",
     "Tools",
