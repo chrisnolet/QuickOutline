@@ -1,0 +1,22 @@
+{
+  "name": "com.chrisnolet.quickoutline",
+  "version": "1.1.0",
+  "displayName": "QuickOutline",
+  "description": "Quick Outline is a world-space outline tool, that adds a solid outline to any object.",
+  "unity": "2021.3",
+  "unityRelease": "15f1",
+  "documentationUrl": "https://assetstore.unity.com/packages/tools/particles-effects/quick-outline-115488",
+  "changelogUrl": "https://github.com/chrisnolet/QuickOutline",
+  "licensesUrl": "https://github.com/chrisnolet/QuickOutline/blob/master/License.txt",
+  "dependencies": {},
+  "keywords": [
+    "Outline",
+    "Tools",
+    "Particles",
+    "Effects"
+  ],
+  "author": {
+    "name": "Chris Nolet",
+    "url": "https://github.com/chrisnolet"
+  }
+}
